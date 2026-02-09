@@ -4,6 +4,7 @@ import cors from "cors";
 import connectDB from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
 import budgetRoutes from "./routes/budgetRoutes.js";
+import transactionRoutes from "./routes/transactionRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -30,6 +31,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", authRoutes);
 app.use("/api/budgets", budgetRoutes);
+app.use("/api/transactions", transactionRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

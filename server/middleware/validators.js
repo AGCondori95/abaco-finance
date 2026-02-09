@@ -98,3 +98,55 @@ export const budgetValidation = [
     .isISO8601()
     .withMessage("Fecha de finalización inválida"),
 ];
+
+export const transactionValidation = [
+  body("type")
+    .notEmpty()
+    .withMessage("El tipo de transacción es requerido")
+    .isIn(["ingreso", "gasto"])
+    .withMessage("Tipo de transacción inválido"),
+
+  body("category")
+    .notEmpty()
+    .withMessage("La categoría es requerida")
+    .isIn([
+      "salario",
+      "freelance",
+      "inversiones",
+      "alimentacion",
+      "transporte",
+      "vivienda",
+      "salud",
+      "educacion",
+      "entretenimiento",
+      "servicios",
+      "otros",
+    ])
+    .withMessage("Categoría inválida"),
+
+  body("amount")
+    .notEmpty()
+    .withMessage("El monto es requerido")
+    .isFloat({min: 0.01})
+    .withMessage("El monto debe ser mayor a 0"),
+
+  body("description")
+    .trim()
+    .notEmpty()
+    .withMessage("La descripción es requerida")
+    .isLength({min: 3, max: 200})
+    .withMessage("La descripción debe tener entre 3 y 200 caracteres"),
+
+  body("date").optional().isISO8601().withMessage("Fecha inválida"),
+
+  body("paymentMethod")
+    .optional()
+    .isIn([
+      "efectivo",
+      "tarjeta_debito",
+      "tarjeta_credito",
+      "transferencia",
+      "otro",
+    ])
+    .withMessage("Método de pago inválido"),
+];
