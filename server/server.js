@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import connectDB from "./config/database.js";
 import authRoutes from "./routes/authRoutes.js";
+import budgetRoutes from "./routes/budgetRoutes.js";
 
 // Load environment variables
 dotenv.config();
@@ -28,6 +29,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.use("/api/auth", authRoutes);
+app.use("/api/budgets", budgetRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
