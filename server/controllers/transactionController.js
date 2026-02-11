@@ -150,10 +150,10 @@ export const createTransaction = async (req, res) => {
 
     const transaction = await Transaction.create({
       user: req.user.id,
-      budget,
+      budget: req.body.budget,
       type,
       category,
-      amount,
+      amount: req.body.amount,
       description,
       date: date || Date.now(),
       paymentMethod,
@@ -163,14 +163,10 @@ export const createTransaction = async (req, res) => {
       recurringFrequency,
     });
 
-    const populatedTransaction = await Transaction.findById(transaction._id)
-      .populate("user", "name email")
-      .populate("budget", "name category");
-
     res.status(201).json({
       success: true,
       message: "Transacción creada exitosamente",
-      data: populatedTransaction,
+      data: transaction,
     });
   } catch (error) {
     console.error("Create transaction error:", error);
@@ -287,6 +283,12 @@ export const deleteTransaction = async (req, res) => {
       return res.status(403).json({
         success: false,
         message: "No autorizado para eliminar esta transacción",
+      });
+    }
+
+    if (transaction.budget && transaction.type === "gasto") {
+      await Budget.findByIdAndUpdate(transaction.budget, {
+        $inc: {spent: -transaction.amount},
       });
     }
 

@@ -20,6 +20,7 @@ const Transactions = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterType, setFilterType] = useState("");
   const [filterCategory, setFilterCategory] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     type: "gasto",
     category: "alimentacion",
@@ -62,6 +63,18 @@ const Transactions = () => {
     fetchBudgets();
   }, []);
 
+  // Dentro de Transactions.jsx
+  useEffect(() => {
+    if (budgets.length > 0 && !formData.budget) {
+      const compatibleBudget = budgets.find(
+        (b) => b.category === formData.category,
+      );
+      if (compatibleBudget) {
+        setFormData((prev) => ({...prev, budget: compatibleBudget._id}));
+      }
+    }
+  }, [formData.category, budgets]);
+
   const fetchTransactions = async () => {
     try {
       const {data} = await axios.get("/transactions");
@@ -84,9 +97,13 @@ const Transactions = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isSubmitting) return; // Si ya se está enviando, no hacer nada
+
+    setIsSubmitting(true); // Bloquear
     try {
       const payload = {
         ...formData,
+        amount: Number(formData.amount), // Aseguramos que sea número
         tags: formData.tags
           ? formData.tags.split(",").map((t) => t.trim())
           : [],
@@ -103,6 +120,8 @@ const Transactions = () => {
     } catch (error) {
       console.error("Error saving transaction:", error);
       alert(error.response?.data?.message || "Error al guardar transacción");
+    } finally {
+      setIsSubmitting(false); // Desbloquear al terminar (éxito o error)
     }
   };
 
@@ -534,8 +553,16 @@ const Transactions = () => {
                   className='flex-1 btn-secondary'>
                   Cancelar
                 </button>
-                <button type='submit' className='flex-1 btn-primary'>
-                  {editingTransaction ? "Actualizar" : "Crear"}
+                <button
+                  type='submit'
+                  className='flex-1 btn-primary'
+                  disabled={isSubmitting} // Deshabilitar visualmente
+                >
+                  {isSubmitting
+                    ? "Procesando..."
+                    : editingTransaction
+                      ? "Actualizar"
+                      : "Crear"}
                 </button>
               </div>
             </form>
